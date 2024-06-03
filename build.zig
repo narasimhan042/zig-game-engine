@@ -15,26 +15,41 @@ pub fn build(b: *std.Build) void {
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
 
-    const lib = b.addStaticLibrary(.{
-        .name = "hello-world",
-        // In this case the main source file is merely a path, however, in more
-        // complicated build scripts, this could be a generated file.
-        .root_source_file = b.path("src/root.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
+    // const lib = b.addStaticLibrary(.{
+    //     .name = "sdl2-game",
+    //     // In this case the main source file is merely a path, however, in more
+    //     // complicated build scripts, this could be a generated file.
+    //     .root_source_file = b.path("src/root.zig"),
+    //     .target = target,
+    //     .optimize = optimize,
+    // });
 
     // This declares intent for the library to be installed into the standard
     // location when the user invokes the "install" step (the default step when
     // running `zig build`).
-    b.installArtifact(lib);
+    // b.installArtifact(lib);
 
     const exe = b.addExecutable(.{
-        .name = "hello-world",
+        .name = "sdl2-2d-game",
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
+
+    // if (target.query.isNativeOs() and target.query.os_tag == .linux) {
+    // The SDL package doesn't work for Linux yet, so we rely on system
+    // packages for now.
+    exe.linkSystemLibrary("SDL2");
+    // exe.addIncludePath("external/SDL2-2.30.3/include");
+    exe.linkLibC();
+
+    // } else {
+    //     const sdl_dep = b.dependency("sdl", .{
+    //         .optimize = .ReleaseFast,
+    //         .target = target,
+    //     });
+    //     exe.linkLibrary(sdl_dep.artifact("SDL2"));
+    // }
 
     // This declares intent for the executable to be installed into the
     // standard location when the user invokes the "install" step (the default
@@ -45,6 +60,14 @@ pub fn build(b: *std.Build) void {
     // step is evaluated that depends on it. The next line below will establish
     // such a dependency.
     const run_cmd = b.addRunArtifact(exe);
+    // Wayland does not initialize even though libdecor is installed via dnf
+
+    // START OF ERROR
+    // libdecor-gtk-WARNING: Failed to initialize GTK
+    // Failed to load plugin 'libdecor-gtk.so': failed to init
+    // END OF ERROR
+    // Therefore the following fallback is neccessary
+    run_cmd.setEnvironmentVariable("SDL_VIDEODRIVER", "x11");
 
     // By making the run step depend on the install step, it will be run from the
     // installation directory rather than directly from within the cache directory.
