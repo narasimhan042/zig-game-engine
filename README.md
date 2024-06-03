@@ -1,4 +1,4 @@
-##Todo
+# Todo
 
 - [ ] Setup a basic renderer with opengl or SDL accelerated rendering
 
