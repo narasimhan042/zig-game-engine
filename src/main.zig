@@ -6,7 +6,6 @@ const c = @cImport({
 });
 
 pub fn main() !void {
-    print("Hello world\n", .{});
     if (c.SDL_Init(c.SDL_INIT_VIDEO) != 0) {
         c.SDL_Log("SDL_Init failed: ", c.SDL_GetError());
         return error.SDLInitializationFailed;
