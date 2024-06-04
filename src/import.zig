@@ -9,13 +9,13 @@
 //! This file is imported instead of the core files directly
 
 // Engine and Core Systems
-pub const init_params = @import("init_parameters.zig");
+pub const init_params = @import("init_parameters.zig").InitParameters;
 
 // STD
 const std = @import("std");
 const print = std.debug.print;
 
 // External Libraries
-const sdl = @cImport({
+pub const sdl = @cImport({
     @cInclude("SDL2/SDL.h");
 });

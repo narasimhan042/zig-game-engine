@@ -11,23 +11,30 @@
 //! Remember to deinit()
 //!
 
-const imp = @import("import.zig");
+pub const imp = @import("import.zig");
 const c = imp.sdl;
 const InitParams = imp.init_params;
 
-var window: *c.SDL_Window = null;
+var window: ?*c.SDL_Window = null;
 // pub var renderer: *c.SDL_Renderer = null;
 
 const SCREEN_WIDTH = 1280;
 const SCREEN_HEIGHT = 800;
 
-pub fn init(param: InitParams) !void {
-    if (c.SDL_Init(param.sdl_init_flags) != 0) {
+pub fn init(param: ?InitParams) !void {
+    var p: InitParams = undefined;
+    if (param == null) {
+        p = InitParams{};
+    } else {
+        p = param.?;
+    }
+
+    if (c.SDL_Init(p.sdl_init_flags) != 0) {
         c.SDL_Log("SDL_Init failed: ", c.SDL_GetError());
         return error.SDLInitializationFailed;
     }
 
-    window = c.SDL_CreateWindow(param.title, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, param.window_flags);
+    window = c.SDL_CreateWindow(p.title, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, p.window_flags);
 
     if (window == null) {
         c.SDL_Log("SDL_CreateWindow failed.", c.SDL_GetError());
