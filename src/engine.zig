@@ -46,16 +46,3 @@ pub fn deinit() void {
     c.SDL_DestroyWindow(window);
     c.SDL_Quit();
 }
-
-// pub fn mainloop() !void {
-//     var ev: c.SDL_Event = undefined;
-//     var quit = false;
-
-//     while (!quit) {
-//         _ = c.SDL_PollEvent(&ev);
-
-//         if (ev.type == c.SDL_QUIT) {
-//             quit = true;
-//         }
-//     }
-// }
