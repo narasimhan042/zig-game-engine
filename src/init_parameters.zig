@@ -16,7 +16,7 @@ const c = imp.sdl;
 
 pub const InitParameters = struct {
     /// Name of the app. It will be used as the Window Title
-    title: []const u8,
+    title: []const u8 = "SDL2 Window",
 
     sdl_init_flags: u32 = c.SDL_INIT_VIDEO,
     window_flags: u32 = c.SDL_WINDOW_OPENGL | c.SDL_WINDOW_SHOWN,
