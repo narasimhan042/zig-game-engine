@@ -6,20 +6,24 @@ pub const Scene = struct {
         return self.enterTreeFn(self.ptr);
     }
 
-    // pub fn init(ptr: anytype) Scene {
-    //     const T = @TypeOf(ptr);
-    //     const ptr_info = @typeInfo(T);
+    pub fn init(ptr: anytype) Scene {
+        const T = @TypeOf(ptr);
+        const ptr_info = @typeInfo(T);
 
-    //     const gen = struct {
-    //         pub fn enterTree(pointer: *anyopaque) void {
-    //             const self: T = @ptrCast(@alignCast(pointer));
-    //             return ptr_info.Pointer.child.enterTree(self);
-    //         }
-    //     };
+        if (ptr_info != .Pointer) @compileError("ptr must be a pointer");
+        if (ptr_info.Pointer.size != .One) @compileError("ptr must be a single item pointer");
 
-    //     return .{
-    //         .ptr = ptr,
-    //         .enterTreeFn = gen.enterTree,
-    //     };
-    // }
+        const gen = struct {
+            pub fn enterTree(pointer: *anyopaque) void {
+                const self: T = @ptrCast(@alignCast(pointer));
+                // return ptr_info.Pointer.child.writeAll(self);
+                return @call(.always_inline, ptr_info.Pointer.child.enterTree, .{self});
+            }
+        };
+
+        return .{
+            .ptr = ptr,
+            .enterTreeFn = gen.enterTree,
+        };
+    }
 };
