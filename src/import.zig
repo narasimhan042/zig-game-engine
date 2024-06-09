@@ -10,10 +10,11 @@
 
 // Engine and Core Systems
 pub const init_params = @import("init_parameters.zig").InitParameters;
+pub const Scene = @import("scene.zig").Scene;
 
 // STD
 const std = @import("std");
-const print = std.debug.print;
+pub const print = std.debug.print;
 
 // External Libraries
 pub const sdl = @cImport({
