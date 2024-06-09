@@ -18,4 +18,7 @@ const print = std.debug.print;
 // External Libraries
 pub const sdl = @cImport({
     @cInclude("SDL2/SDL.h");
+    @cInclude("GL/glew.h");
 });
+
+pub const Event = sdl.SDL_Event;
