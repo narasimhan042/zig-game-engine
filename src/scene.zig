@@ -6,7 +6,7 @@ pub const Scene = struct {
 
         enterTreeFn: *const fn (ptr: *anyopaque) void,
         readyFn: *const fn (ptr: *anyopaque) void,
-        inputFn: *const fn (ptr: *anyopaque, event: *i.Event) void,
+        inputFn: *const fn (ptr: *anyopaque, event: *i.Event) anyerror!void,
         // physicsProcessFn: *const fn (ptr: *anyopaque) void,
         // processFn: *const fn (ptr: *anyopaque) void,
         renderFn: *const fn (ptr: *anyopaque) void,
@@ -33,7 +33,7 @@ pub const Scene = struct {
                 return @call(.always_inline, ptr_info.Pointer.child.ready, .{self});
             }
 
-            pub fn input(pointer: *anyopaque, event: *i.Event) void {
+            pub fn input(pointer: *anyopaque, event: *i.Event) anyerror!void {
                 const self: T = @ptrCast(@alignCast(pointer));
                 // return ptr_info.Pointer.child.writeAll(self);
                 return @call(.always_inline, ptr_info.Pointer.child.input, .{ self, event });
@@ -70,7 +70,7 @@ pub const Scene = struct {
         return self.private.readyFn(self.private.ptr);
     }
 
-    pub fn input(self: Scene, event: *i.Event) void {
+    pub fn input(self: Scene, event: *i.Event) anyerror!void {
         return self.private.inputFn(self.private.ptr, event);
     }
 

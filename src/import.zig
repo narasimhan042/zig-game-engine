@@ -10,7 +10,7 @@ pub const InitParams = @import("init_parameters.zig").InitParameters;
 pub const Scene = @import("scene.zig").Scene;
 
 // STD
-const std = @import("std");
+pub const std = @import("std");
 pub const print = std.debug.print;
 
 // External Libraries
