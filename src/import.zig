@@ -1,15 +1,12 @@
 //! ---------------------------------------
-//! Import file for ease of use
-//! ---------------------------------------
 //! Imports all common files
-//! Contents:
-//! -
 //! ---------------------------------------
 //! How to use this file:
 //! This file is imported instead of the core files directly
+//! Import file for ease of use
 
 // Engine and Core Systems
-pub const init_params = @import("init_parameters.zig").InitParameters;
+pub const InitParams = @import("init_parameters.zig").InitParameters;
 pub const Scene = @import("scene.zig").Scene;
 
 // STD

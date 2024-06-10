@@ -8,49 +8,50 @@
 //! - init and deinit engine functions
 //! ---------------------------------------
 //! How to use this file:
-//! Remember to deinit()
-//!
+//! - init the engine with MainScene file
+//! - that's it
 
-pub const imp = @import("import.zig");
-const c = imp.sdl;
-const InitParams = imp.init_params;
+// Global import
+pub const import = @import("import.zig");
+const i = import;
+const c = import.sdl;
 
+// Steam Deck preset
 const SCREEN_WIDTH = 1280;
 const SCREEN_HEIGHT = 800;
 
 var window: ?*c.SDL_Window = undefined;
 var gl_context: c.SDL_GLContext = undefined;
 
-pub var main_scene: imp.Scene = undefined;
-pub var event: imp.Event = undefined;
+// User populated scene variable
+var main_scene: i.Scene = undefined;
+// SDL uses 'event' to poll inputs
+var event: i.Event = undefined;
 
+// control queued exit of engine at the end of mainLoop
 var engine_running = true;
 
-pub fn init(param: ?InitParams, MainScene: anytype) !void {
-    var p: InitParams = undefined;
-    if (param == null) {
-        p = InitParams{};
-    } else {
-        p = param.?;
-    }
-
+// Starts the engine with a user specified main scene
+pub fn init(p: i.InitParams, MainScene: anytype) !void {
+    // Inits SDL2
     if (c.SDL_Init(p.sdl_init_flags) != 0) {
         c.SDL_Log("SDL_Init failed: ", c.SDL_GetError());
         return error.SDLInitializationFailed;
     }
 
+    // Inits window context
+    window = c.SDL_CreateWindow(p.title, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, p.window_flags);
+    if (window == null) {
+        c.SDL_Log("SDL_CreateWindow failed.", c.SDL_GetError());
+        return error.SDLWindowCreationFailed;
+    }
+
+    // Creates OpenGL context
     _ = c.SDL_GL_SetAttribute(c.SDL_GL_RED_SIZE, 5);
     _ = c.SDL_GL_SetAttribute(c.SDL_GL_GREEN_SIZE, 5);
     _ = c.SDL_GL_SetAttribute(c.SDL_GL_BLUE_SIZE, 5);
     _ = c.SDL_GL_SetAttribute(c.SDL_GL_DEPTH_SIZE, 16);
     _ = c.SDL_GL_SetAttribute(c.SDL_GL_DOUBLEBUFFER, 1);
-
-    window = c.SDL_CreateWindow(p.title, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, p.window_flags);
-
-    if (window == null) {
-        c.SDL_Log("SDL_CreateWindow failed.", c.SDL_GetError());
-        return error.SDLWindowCreationFailed;
-    }
 
     gl_context = c.SDL_GL_CreateContext(window);
     if (gl_context == null) {
@@ -60,7 +61,7 @@ pub fn init(param: ?InitParams, MainScene: anytype) !void {
 
     _ = c.SDL_GL_MakeCurrent(window, gl_context);
 
-    //initialization of glew
+    // Initialization of GLEW
     const status: c.GLenum = c.glewInit();
     if (status != c.GLEW_OK) {
         c.SDL_Log("GLEW ERROR: ", c.glewGetErrorString(status));
@@ -68,34 +69,22 @@ pub fn init(param: ?InitParams, MainScene: anytype) !void {
     }
     c.SDL_Log("Status: Using GLEW: %s\n", c.glewGetString(c.GLEW_VERSION));
 
+    // Creates an instance of the main scene
     var ms = MainScene{};
+    // Creates a Scene interface from it
     main_scene = ms.createScene();
+    // Scene callbacks to process game
     main_scene.enterTree();
     main_scene.ready();
 
+    // Starts mainLoop
     mainLoop();
 }
 
-pub fn deinit() void {
-    main_scene.exitTree();
-
-    c.SDL_GL_DeleteContext(gl_context);
-    c.SDL_DestroyWindow(window);
-    c.SDL_Quit();
-}
-
-pub fn pollInputEvents() void {
-    _ = c.SDL_PollEvent(&event);
-}
-
-pub fn engineIsRunning() bool {
-    return engine_running;
-}
-
-pub fn mainLoop() void {
+fn mainLoop() void {
     while (engine_running) {
         // Poll and process inputs
-        pollInputEvents();
+        _ = c.SDL_PollEvent(&event);
         main_scene.input(&event);
 
         main_scene.render();
@@ -114,4 +103,12 @@ pub fn shouldQuit() bool {
 
 pub fn quit() void {
     engine_running = false;
+}
+
+fn deinit() void {
+    main_scene.exitTree();
+
+    c.SDL_GL_DeleteContext(gl_context);
+    c.SDL_DestroyWindow(window);
+    c.SDL_Quit();
 }

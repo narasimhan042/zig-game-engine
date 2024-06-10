@@ -1,11 +1,11 @@
-const Event = @import("import.zig").Event;
+const i = @import("import.zig");
 
 pub const Scene = struct {
     ptr: *anyopaque,
 
     enterTreeFn: *const fn (ptr: *anyopaque) void,
     readyFn: *const fn (ptr: *anyopaque) void,
-    inputFn: *const fn (ptr: *anyopaque, event: *Event) void,
+    inputFn: *const fn (ptr: *anyopaque, event: *i.Event) void,
     // physicsProcessFn: *const fn (ptr: *anyopaque) void,
     // processFn: *const fn (ptr: *anyopaque) void,
     renderFn: *const fn (ptr: *anyopaque) void,
@@ -31,7 +31,7 @@ pub const Scene = struct {
                 return @call(.always_inline, ptr_info.Pointer.child.ready, .{self});
             }
 
-            pub fn input(pointer: *anyopaque, event: *Event) void {
+            pub fn input(pointer: *anyopaque, event: *i.Event) void {
                 const self: T = @ptrCast(@alignCast(pointer));
                 // return ptr_info.Pointer.child.writeAll(self);
                 return @call(.always_inline, ptr_info.Pointer.child.input, .{ self, event });
@@ -68,7 +68,7 @@ pub const Scene = struct {
         return self.readyFn(self.ptr);
     }
 
-    pub fn input(self: Scene, event: *Event) void {
+    pub fn input(self: Scene, event: *i.Event) void {
         return self.inputFn(self.ptr, event);
     }
 

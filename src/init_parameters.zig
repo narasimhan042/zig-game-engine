@@ -11,8 +11,8 @@
 //! - Use struct to init engine
 
 // Imports
-const imp = @import("import.zig");
-const c = imp.sdl;
+const i = @import("import.zig");
+const c = i.sdl;
 
 pub const InitParameters = struct {
     /// Name of the app. It will be used as the Window Title
