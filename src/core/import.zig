@@ -6,8 +6,10 @@
 //! Import file for ease of use
 
 // Engine and Core Systems
-pub const InitParams = @import("init_parameters.zig").InitParameters;
+const init_parameters = @import("init_parameters.zig");
+pub const InitParams = init_parameters.InitParameters;
 pub const Scene = @import("scene.zig").Scene;
+// pub const InputAction = @import("input_actions.zig").InputAction;
 
 // STD
 pub const std = @import("std");

@@ -33,13 +33,13 @@ pub const Scene = struct {
                 return @call(.always_inline, ptr_info.Pointer.child.ready, .{self});
             }
 
-            pub fn input(pointer: *anyopaque, event: *i.Event) anyerror!void {
+            pub inline fn input(pointer: *anyopaque, event: *i.Event) anyerror!void {
                 const self: T = @ptrCast(@alignCast(pointer));
                 // return ptr_info.Pointer.child.writeAll(self);
                 return @call(.always_inline, ptr_info.Pointer.child.input, .{ self, event });
             }
 
-            pub fn render(pointer: *anyopaque) void {
+            pub inline fn render(pointer: *anyopaque) void {
                 const self: T = @ptrCast(@alignCast(pointer));
                 // return ptr_info.Pointer.child.writeAll(self);
                 return @call(.always_inline, ptr_info.Pointer.child.render, .{self});
@@ -70,11 +70,11 @@ pub const Scene = struct {
         return self.private.readyFn(self.private.ptr);
     }
 
-    pub fn input(self: Scene, event: *i.Event) anyerror!void {
+    pub inline fn input(self: Scene, event: *i.Event) anyerror!void {
         return self.private.inputFn(self.private.ptr, event);
     }
 
-    pub fn render(self: Scene) void {
+    pub inline fn render(self: Scene) void {
         return self.private.renderFn(self.private.ptr);
     }
 

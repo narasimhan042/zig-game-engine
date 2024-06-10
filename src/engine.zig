@@ -12,7 +12,7 @@
 //!
 
 // Global import
-pub const import = @import("import.zig");
+pub const import = @import("core/import.zig");
 const i = import;
 const c = import.sdl;
 const heap = i.std.heap;
@@ -25,7 +25,7 @@ var window: ?*c.SDL_Window = undefined;
 var gl_context: c.SDL_GLContext = undefined;
 
 var gpa = heap.GeneralPurposeAllocator(.{}){};
-const allocator = gpa.allocator();
+pub const allocator = gpa.allocator();
 
 var current_scene_ptr: usize = 0;
 var current_interface: i.Scene = undefined;
@@ -120,7 +120,7 @@ pub fn getWindow() ?*c.SDL_Window {
     return window;
 }
 
-pub fn shouldQuit() bool {
+pub fn isQuitRequested() bool {
     return event.type == c.SDL_QUIT;
 }
 
