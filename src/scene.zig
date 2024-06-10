@@ -1,15 +1,17 @@
 const i = @import("import.zig");
 
 pub const Scene = struct {
-    ptr: *anyopaque,
+    private: struct {
+        ptr: *anyopaque,
 
-    enterTreeFn: *const fn (ptr: *anyopaque) void,
-    readyFn: *const fn (ptr: *anyopaque) void,
-    inputFn: *const fn (ptr: *anyopaque, event: *i.Event) void,
-    // physicsProcessFn: *const fn (ptr: *anyopaque) void,
-    // processFn: *const fn (ptr: *anyopaque) void,
-    renderFn: *const fn (ptr: *anyopaque) void,
-    exitTreeFn: *const fn (ptr: *anyopaque) void,
+        enterTreeFn: *const fn (ptr: *anyopaque) void,
+        readyFn: *const fn (ptr: *anyopaque) void,
+        inputFn: *const fn (ptr: *anyopaque, event: *i.Event) void,
+        // physicsProcessFn: *const fn (ptr: *anyopaque) void,
+        // processFn: *const fn (ptr: *anyopaque) void,
+        renderFn: *const fn (ptr: *anyopaque) void,
+        exitTreeFn: *const fn (ptr: *anyopaque) void,
+    },
 
     pub fn init(ptr: anytype) Scene {
         const T = @TypeOf(ptr);
@@ -50,33 +52,33 @@ pub const Scene = struct {
             }
         };
 
-        return .{
+        return .{ .private = .{
             .ptr = ptr,
             .enterTreeFn = gen.enterTree,
             .readyFn = gen.ready,
             .inputFn = gen.input,
             .renderFn = gen.render,
             .exitTreeFn = gen.exitTree,
-        };
+        } };
     }
 
     pub fn enterTree(self: Scene) void {
-        return self.enterTreeFn(self.ptr);
+        return self.private.enterTreeFn(self.private.ptr);
     }
 
     pub fn ready(self: Scene) void {
-        return self.readyFn(self.ptr);
+        return self.private.readyFn(self.private.ptr);
     }
 
     pub fn input(self: Scene, event: *i.Event) void {
-        return self.inputFn(self.ptr, event);
+        return self.private.inputFn(self.private.ptr, event);
     }
 
     pub fn render(self: Scene) void {
-        return self.renderFn(self.ptr);
+        return self.private.renderFn(self.private.ptr);
     }
 
     pub fn exitTree(self: Scene) void {
-        return self.exitTreeFn(self.ptr);
+        return self.private.exitTreeFn(self.private.ptr);
     }
 };
