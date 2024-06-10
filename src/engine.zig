@@ -15,16 +15,18 @@ pub const imp = @import("import.zig");
 const c = imp.sdl;
 const InitParams = imp.init_params;
 
-var window: ?*c.SDL_Window = undefined;
-var gl_context: c.SDL_GLContext = undefined;
-// pub var renderer: *c.SDL_Renderer = null;
-
 const SCREEN_WIDTH = 1280;
 const SCREEN_HEIGHT = 800;
 
+var window: ?*c.SDL_Window = undefined;
+var gl_context: c.SDL_GLContext = undefined;
+
+pub var main_scene: imp.Scene = undefined;
+pub var event: imp.Event = undefined;
+
 var engine_running = true;
 
-pub fn init(param: ?InitParams) !void {
+pub fn init(param: ?InitParams, MainScene: anytype) !void {
     var p: InitParams = undefined;
     if (param == null) {
         p = InitParams{};
@@ -65,27 +67,48 @@ pub fn init(param: ?InitParams) !void {
         return error.GLEWError;
     }
     c.SDL_Log("Status: Using GLEW: %s\n", c.glewGetString(c.GLEW_VERSION));
+
+    var ms = MainScene{};
+    main_scene = ms.createScene();
+    main_scene.enterTree();
+    main_scene.ready();
+
+    mainLoop();
 }
 
 pub fn deinit() void {
+    main_scene.exitTree();
+
     c.SDL_GL_DeleteContext(gl_context);
     c.SDL_DestroyWindow(window);
     c.SDL_Quit();
 }
 
-pub fn pollInputEvents(event: *imp.Event) void {
-    _ = c.SDL_PollEvent(event);
+pub fn pollInputEvents() void {
+    _ = c.SDL_PollEvent(&event);
 }
 
 pub fn engineIsRunning() bool {
     return engine_running;
 }
 
+pub fn mainLoop() void {
+    while (engine_running) {
+        // Poll and process inputs
+        pollInputEvents();
+        main_scene.input(&event);
+
+        main_scene.render();
+    }
+
+    deinit();
+}
+
 pub fn getWindow() ?*c.SDL_Window {
     return window;
 }
 
-pub fn shouldQuit(event: *imp.Event) bool {
+pub fn shouldQuit() bool {
     return event.type == c.SDL_QUIT;
 }
 
