@@ -11,6 +11,14 @@ pub const InitParams = init_parameters.InitParameters;
 pub const Scene = @import("scene.zig").Scene;
 // pub const InputAction = @import("input_actions.zig").InputAction;
 
+// Core Types
+pub const color = @import("types/color.zig");
+pub const vector = @import("types/vectors.zig");
+pub const types = struct {
+    pub const RGBraw = color.RGBraw;
+    pub const Vector2 = vector.Vector2;
+};
+
 // STD
 pub const std = @import("std");
 pub const print = std.debug.print;
