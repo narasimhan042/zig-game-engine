@@ -32,6 +32,9 @@ var current_interface: i.Scene = undefined;
 // SDL uses 'event' to poll inputs
 var event: i.Event = undefined;
 
+// Target physics Seconds per Frame
+var physics_frame_time: f32 = undefined;
+
 // control queued exit of engine at the end of mainLoop
 var engine_running = true;
 
@@ -78,16 +81,33 @@ pub fn init(p: i.InitParams, MainScene: anytype) anyerror!void {
     // therefore, the arguments are duplicated
     try changeSceneTo(MainScene, MainScene);
 
+    physics_frame_time = 1.0 / @as(f32, @floatFromInt(p.physics_fps));
+
     try mainLoop(MainScene);
 }
 
 fn mainLoop(CurrentScene: anytype) anyerror!void {
+    var delta_time: f32 = 0;
+    var physics_delta_time: f32 = 0;
+
     while (engine_running) {
+        const start_time = c.SDL_GetTicks64();
+        physics_delta_time += delta_time;
+
         // Poll and process inputs
         _ = c.SDL_PollEvent(&event);
         try current_interface.input(&event);
 
+        if (physics_delta_time >= physics_frame_time) {
+            try current_interface.physicsProcess(physics_delta_time);
+            physics_delta_time = @rem(physics_delta_time - physics_frame_time, physics_frame_time);
+            // physics_delta_time = 0.0;
+        }
+        current_interface.process(delta_time);
+
         current_interface.render();
+
+        delta_time = @as(f32, @floatFromInt(c.SDL_GetTicks64() - start_time)) / 1000.0;
     }
 
     current_interface.exitTree();
@@ -113,7 +133,6 @@ pub fn changeSceneTo(PrevScene: anytype, NextScene: anytype) !void {
 
     // Scene callbacks to process game
     current_interface.enterTree();
-    current_interface.ready();
 }
 
 pub fn getWindow() ?*c.SDL_Window {

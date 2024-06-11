@@ -21,6 +21,8 @@ pub const InitParameters = struct {
     sdl_init_flags: u32 = c.SDL_INIT_VIDEO,
     window_flags: u32 = c.SDL_WINDOW_OPENGL | c.SDL_WINDOW_SHOWN,
     renderer_flags: u32 = c.SDL_RENDERER_ACCELERATED | c.SDL_RENDERER_TARGETTEXTURE,
+
+    physics_fps: u8 = 60,
 };
 
 // ---------------------------------------

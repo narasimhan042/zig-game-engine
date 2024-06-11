@@ -5,10 +5,9 @@ pub const Scene = struct {
         ptr: *anyopaque,
 
         enterTreeFn: *const fn (ptr: *anyopaque) void,
-        readyFn: *const fn (ptr: *anyopaque) void,
         inputFn: *const fn (ptr: *anyopaque, event: *i.Event) anyerror!void,
-        // physicsProcessFn: *const fn (ptr: *anyopaque) void,
-        // processFn: *const fn (ptr: *anyopaque) void,
+        physicsProcessFn: *const fn (ptr: *anyopaque, delta: f32) anyerror!void,
+        processFn: *const fn (ptr: *anyopaque, delta: f32) void,
         renderFn: *const fn (ptr: *anyopaque) void,
         exitTreeFn: *const fn (ptr: *anyopaque) void,
     },
@@ -27,16 +26,22 @@ pub const Scene = struct {
                 return @call(.always_inline, ptr_info.Pointer.child.enterTree, .{self});
             }
 
-            pub fn ready(pointer: *anyopaque) void {
-                const self: T = @ptrCast(@alignCast(pointer));
-                // return ptr_info.Pointer.child.writeAll(self);
-                return @call(.always_inline, ptr_info.Pointer.child.ready, .{self});
-            }
-
             pub fn input(pointer: *anyopaque, event: *i.Event) anyerror!void {
                 const self: T = @ptrCast(@alignCast(pointer));
                 // return ptr_info.Pointer.child.writeAll(self);
                 return @call(.always_inline, ptr_info.Pointer.child.input, .{ self, event });
+            }
+
+            pub fn physicsProcess(pointer: *anyopaque, delta: f32) anyerror!void {
+                const self: T = @ptrCast(@alignCast(pointer));
+                // return ptr_info.Pointer.child.writeAll(self);
+                return @call(.always_inline, ptr_info.Pointer.child.physicsProcess, .{ self, delta });
+            }
+
+            pub fn process(pointer: *anyopaque, delta: f32) void {
+                const self: T = @ptrCast(@alignCast(pointer));
+                // return ptr_info.Pointer.child.writeAll(self);
+                return @call(.always_inline, ptr_info.Pointer.child.process, .{ self, delta });
             }
 
             pub fn render(pointer: *anyopaque) void {
@@ -52,26 +57,33 @@ pub const Scene = struct {
             }
         };
 
-        return .{ .private = .{
-            .ptr = ptr,
-            .enterTreeFn = gen.enterTree,
-            .readyFn = gen.ready,
-            .inputFn = gen.input,
-            .renderFn = gen.render,
-            .exitTreeFn = gen.exitTree,
-        } };
+        return .{
+            .private = .{
+                .ptr = ptr,
+                .enterTreeFn = gen.enterTree,
+                .inputFn = gen.input,
+                .physicsProcessFn = gen.physicsProcess,
+                .processFn = gen.process,
+                .renderFn = gen.render,
+                .exitTreeFn = gen.exitTree,
+            },
+        };
     }
 
     pub fn enterTree(self: Scene) void {
         return self.private.enterTreeFn(self.private.ptr);
     }
 
-    pub fn ready(self: Scene) void {
-        return self.private.readyFn(self.private.ptr);
-    }
-
     pub inline fn input(self: Scene, event: *i.Event) anyerror!void {
         return self.private.inputFn(self.private.ptr, event);
+    }
+
+    pub inline fn physicsProcess(self: Scene, delta: f32) anyerror!void {
+        return try self.private.physicsProcessFn(self.private.ptr, delta);
+    }
+
+    pub inline fn process(self: Scene, delta: f32) void {
+        return self.private.processFn(self.private.ptr, delta);
     }
 
     pub inline fn render(self: Scene) void {
