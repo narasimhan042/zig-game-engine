@@ -11,12 +11,13 @@
 // ---------------------------------------
 
 /// Constructor
-pub fn vec2Of(comptime T: type) type {
-    return struct {
-        x: T,
-        y: T,
-    };
-}
+/// DEPRECATED
+// pub fn vec2Of(comptime T: type) type {
+//     return struct {
+//         x: T,
+//         y: T,
+//     };
+// }
 
 pub const Vector2 = struct {
     x: f32,

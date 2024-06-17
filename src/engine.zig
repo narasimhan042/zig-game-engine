@@ -37,6 +37,9 @@ var event: i.Event = undefined;
 // Target physics Seconds per Frame for fixed time frame applications
 var physics_frame_time: f32 = undefined;
 
+// tracks the current fps in (ms)
+var current_frametime: u64 = 0;
+
 // Starts the engine with a user specified main scene
 pub fn init(heap_allocator: mem.Allocator, p: i.InitParams, MainScene: anytype) anyerror!void {
     // Inits SDL2
@@ -45,6 +48,12 @@ pub fn init(heap_allocator: mem.Allocator, p: i.InitParams, MainScene: anytype) 
         return error.SDLInitializationFailed;
     }
     errdefer deinit(MainScene); // In case sdl2 init fails at any point in this function
+
+    // Attempts to set VSync to OFF
+    if (c.SDL_FALSE == c.SDL_SetHintWithPriority(c.SDL_HINT_RENDER_VSYNC, 0, c.SDL_HINT_OVERRIDE)) return error.SetVsyncOffFailed;
+
+    // SDL callbacks
+    c.SDL_AddEventWatch(windowResizedCallback, null); // Reacts to resizing the window
 
     // Inits window context
     window =
@@ -77,6 +86,8 @@ pub fn init(heap_allocator: mem.Allocator, p: i.InitParams, MainScene: anytype) 
     }
     c.SDL_Log("Status: Using GLEW: %s\n", c.glewGetString(c.GLEW_VERSION));
 
+    c.glViewport(0, 0, p.window_width, p.window_height);
+
     // Set the global allocator for the engine
     allocator = heap_allocator;
 
@@ -99,13 +110,14 @@ fn mainLoop() anyerror!void {
 
     mainloop: while (true) {
         const end_tick = c.SDL_GetTicks64(); // Helper timestamp
-        delta_time = @as(f32, @floatFromInt(end_tick - start_tick)) / 1000.0;
+        current_frametime = end_tick - start_tick;
+        delta_time = @as(f32, @floatFromInt(current_frametime)) / 1000.0;
         physics_delta_time += delta_time;
 
         // Poll inputs
         _ = c.SDL_PollEvent(&event);
 
-        // All interface functions can return true and quit the mainloop
+        // 3 of the interface functions can return true and quit the mainloop
         // 1. Input
         if (try current_interface.input(&event)) break :mainloop;
 
@@ -144,12 +156,26 @@ pub fn changeSceneTo(PrevScene: anytype, NextScene: anytype) !void {
     current_interface = next_scene.createInterface();
 
     // Scene callbacks to process game
-    current_interface.enterTree();
+    try current_interface.enterTree();
 }
 
 /// window var is private by default for
 pub inline fn getWindow() ?*c.SDL_Window {
     return window;
+}
+
+pub inline fn getFps() u16 {
+    return @intCast(1000 / current_frametime);
+}
+
+fn windowResizedCallback(userdata: ?*anyopaque, ev: [*c]c.SDL_Event) callconv(.C) c_int {
+    _ = userdata;
+    if (ev.*.type == c.SDL_WINDOWEVENT) {
+        if (ev.*.window.event == c.SDL_WINDOWEVENT_SIZE_CHANGED) {
+            c.glViewport(0, 0, ev.*.window.data1, ev.*.window.data2);
+        }
+    }
+    return 0;
 }
 
 /// Returns whether or not the user tried to quit

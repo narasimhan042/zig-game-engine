@@ -25,7 +25,7 @@ pub const InitParameters = struct {
     window_width: u16 = SCREEN_WIDTH,
     window_height: u16 = SCREEN_HEIGHT,
 
-    sdl_init_flags: u32 = c.SDL_INIT_VIDEO,
+    sdl_init_flags: u32 = c.SDL_INIT_VIDEO | SDL_INIT_EVENTS,
     window_flags: u32 = c.SDL_WINDOW_OPENGL | c.SDL_WINDOW_SHOWN,
     renderer_flags: u32 = c.SDL_RENDERER_ACCELERATED | c.SDL_RENDERER_TARGETTEXTURE,
 

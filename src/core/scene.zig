@@ -4,7 +4,7 @@ pub const Scene = struct {
     private: struct {
         ptr: *anyopaque,
 
-        enterTreeFn: *const fn (ptr: *anyopaque) void,
+        enterTreeFn: *const fn (ptr: *anyopaque) anyerror!void,
         inputFn: *const fn (ptr: *anyopaque, event: *i.Event) anyerror!bool,
         physicsUpdateFn: *const fn (ptr: *anyopaque, delta: f32) anyerror!bool,
         updateFn: *const fn (ptr: *anyopaque, delta: f32) anyerror!bool,
@@ -20,7 +20,7 @@ pub const Scene = struct {
         if (ptr_info.Pointer.size != .One) @compileError("ptr must be a single item pointer");
 
         const gen = struct {
-            pub fn enterTree(pointer: *anyopaque) void {
+            pub fn enterTree(pointer: *anyopaque) anyerror!void {
                 const self: T = @ptrCast(@alignCast(pointer));
                 // return ptr_info.Pointer.child.writeAll(self);
                 return @call(.always_inline, ptr_info.Pointer.child.enterTree, .{self});
@@ -70,7 +70,7 @@ pub const Scene = struct {
         };
     }
 
-    pub fn enterTree(self: Scene) void {
+    pub fn enterTree(self: Scene) anyerror!void {
         return self.private.enterTreeFn(self.private.ptr);
     }
 
