@@ -17,6 +17,7 @@ pub const vector = @import("types/vectors.zig");
 pub const types = struct {
     pub const RGBraw = color.RGBraw;
     pub const Vector2 = vector.Vector2;
+    pub const Vector3 = vector.Vector3;
 };
 
 // STD

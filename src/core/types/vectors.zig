@@ -6,8 +6,8 @@
 //! - Contructors
 //! ---------------------------------------
 
-const Vector2 = vec2Of(f32);
-const Vector3 = vec3Of(f32);
+pub const Vector2 = vec2Of(f32);
+pub const Vector3 = vec3Of(f32);
 
 // ---------------------------------------
 // Type: Vector2
