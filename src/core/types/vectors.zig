@@ -6,67 +6,96 @@
 //! - Contructors
 //! ---------------------------------------
 
+const Vector2 = vec2Of(f32);
+const Vector3 = vec3Of(f32);
+
 // ---------------------------------------
 // Type: Vector2
 // ---------------------------------------
 
-/// Constructor
-/// DEPRECATED
-// pub fn vec2Of(comptime T: type) type {
-//     return struct {
-//         x: T,
-//         y: T,
-//     };
-// }
+/// Vector 2 Constructor
+fn vec2Of(comptime T: type) type {
+    return struct {
+        x: T,
+        y: T,
 
-pub const Vector2 = struct {
-    x: f32,
-    y: f32,
-
-    pub fn add(self: *Vector2, vec: Vector2) void {
-        self.x += vec.x;
-        self.y += vec.y;
-    }
-
-    pub fn normalize(self: *Vector2) !void {
-        const len = @abs(self.length());
-        if (len <= 0.0) return error.CannotDivideByZero;
-
-        self.x /= len;
-        self.y /= len;
-    }
-
-    pub fn scale(self: *Vector2, magnitude: f32) void {
-        self.x *= magnitude;
-        self.y *= magnitude;
-    }
-
-    pub fn length(self: *Vector2) f32 {
-        if (self.x == 0 and self.y == 0) {
-            return 0.0;
-        } else if (self.x == 0) {
-            return self.y;
-        } else if (self.y == 0) {
-            return self.x;
-        } else {
-            return @sqrt((self.x * self.x) + (self.y * self.y));
+        pub fn add(comptime self: @This(), vec: Vector2) void {
+            self.x += vec.x;
+            self.y += vec.y;
         }
-    }
 
-    pub fn newVector2(x: f32, y: f32) Vector2 {
-        return Vector2{ .x = x, .y = y };
-    }
+        pub fn normalize(comptime self: @This()) !void {
+            const len = @abs(self.length());
+            if (len <= 0.0) return error.CannotDivideByZero;
 
-    pub fn reset(self: *Vector2) void {
-        self.x = 0.0;
-        self.y = 0.0;
-    }
-};
+            self.x /= len;
+            self.y /= len;
+        }
 
-pub fn clamp(num: *f32, min: f32, max: f32) void {
-    if (num.* < min) {
-        num.* = min;
-    } else if (num.* > max) {
-        num.* = max;
-    }
+        pub fn scale(comptime self: @This(), magnitude: f32) void {
+            self.x *= magnitude;
+            self.y *= magnitude;
+        }
+
+        pub fn length(comptime self: @This()) f32 {
+            if (self.x == 0 and self.y == 0) {
+                return 0.0;
+            } else if (self.x == 0) {
+                return self.y;
+            } else if (self.y == 0) {
+                return self.x;
+            } else {
+                return @sqrt((self.x * self.x) + (self.y * self.y));
+            }
+        }
+
+        pub fn reset(comptime self: @This()) void {
+            self.x = 0.0;
+            self.y = 0.0;
+        }
+    };
+}
+
+// ---------------------------------------
+// Type: Vector3
+// ---------------------------------------
+
+/// Vector 3 Constructor
+fn vec3Of(comptime T: type) type {
+    return struct {
+        x: T,
+        y: T,
+        z: T,
+
+        pub fn add(comptime self: @This(), vec: Vector3) void {
+            self.x += vec.x;
+            self.y += vec.y;
+            self.z += vec.z;
+        }
+
+        pub fn normalize(comptime self: @This()) !void {
+            const len = @abs(self.length());
+            if (len <= 0.0) return error.CannotDivideByZero;
+
+            self.x /= len;
+            self.y /= len;
+            self.z /= len;
+        }
+
+        pub fn scale(comptime self: @This(), magnitude: f32) void {
+            self.x *= magnitude;
+            self.y *= magnitude;
+            self.z *= magnitude;
+        }
+
+        pub fn length(comptime self: @This()) f32 {
+            return @sqrt((self.x * self.x) + (self.y * self.y) + (self.z * self.z));
+        }
+
+        pub fn reset(comptime self: @This()) void {
+            self.x = 0;
+            self.y = 0;
+            self.z = 0;
+        }
+    };
 }
