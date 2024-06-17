@@ -14,15 +14,26 @@
 const i = @import("import.zig");
 const c = i.sdl;
 
+// Steam Deck preset
+const SCREEN_WIDTH = 1280;
+const SCREEN_HEIGHT = 800;
+
 pub const InitParameters = struct {
     /// Name of the app. It will be used as the Window Title
     title: [*c]const u8 = "SDL2 Window",
+
+    window_width: u16 = SCREEN_WIDTH,
+    window_height: u16 = SCREEN_HEIGHT,
 
     sdl_init_flags: u32 = c.SDL_INIT_VIDEO,
     window_flags: u32 = c.SDL_WINDOW_OPENGL | c.SDL_WINDOW_SHOWN,
     renderer_flags: u32 = c.SDL_RENDERER_ACCELERATED | c.SDL_RENDERER_TARGETTEXTURE,
 
     physics_fps: u8 = 60,
+    // This is not used due to V-SYNC designed to always be on
+    // It can be a benefit to lock the whole engine
+    // to a FPS for energy saving purposes at a later point
+    // rendering_fps: u8 = 60, // 90 FPS on the Steam Deck OLED
 };
 
 // ---------------------------------------
